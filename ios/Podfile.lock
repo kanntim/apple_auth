@@ -1,0 +1,41 @@
+PODS:
+  - fast_rsa (0.6.0):
+    - Flutter
+  - Flutter (1.0.0)
+  - flutter_udid (0.0.1):
+    - Flutter
+    - SAMKeychain
+  - SAMKeychain (1.5.3)
+  - sign_in_with_apple (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - fast_rsa (from `.symlinks/plugins/fast_rsa/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_udid (from `.symlinks/plugins/flutter_udid/ios`)
+  - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
+
+SPEC REPOS:
+  trunk:
+    - SAMKeychain
+
+EXTERNAL SOURCES:
+  fast_rsa:
+    :path: ".symlinks/plugins/fast_rsa/ios"
+  Flutter:
+    :path: Flutter
+  flutter_udid:
+    :path: ".symlinks/plugins/flutter_udid/ios"
+  sign_in_with_apple:
+    :path: ".symlinks/plugins/sign_in_with_apple/ios"
+
+SPEC CHECKSUMS:
+  fast_rsa: d63dc982d5fe1a475fdddb448facb3587571d152
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_udid: a2482c67a61b9c806ef59dd82ed8d007f1b7ac04
+  SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
+  sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440
+
+PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
+
+COCOAPODS: 1.14.3
