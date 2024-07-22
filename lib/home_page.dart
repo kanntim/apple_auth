@@ -1,15 +1,16 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:apple_auth/apple_sign_in.dart';
+import 'package:apple_auth/crypto_utils_manager.dart';
 import 'package:apple_auth/http_service.dart';
 import 'package:apple_auth/request_models.dart';
+import 'package:apple_auth/rsa_generator.dart';
 import 'package:apple_auth/rsa_manager.dart';
 import 'package:apple_auth/server_answer_model.dart';
 import 'package:fast_rsa/fast_rsa.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_udid/flutter_udid.dart';
+import 'package:uuid/uuid.dart';
 import 'package:uuid/v4.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -23,12 +24,21 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   static const platform = MethodChannel('com.test/generateRSA');
   String result = '';
-  final rsaManager = RsaManagerSingleton();
+  final rsaManager = RsaManager();
+  final rsaGenerator = RSAGenerator();
+  final basicUtilManager = CryptoUtilsManager();
   ServerAnswerModel? serverAnswerModel;
+
+  @override
+  void initState() {
+    basicUtilManager.init();
+    super.initState();
+  }
 
   Future _generateRSAKeyPair() async {
     try {
-      final Map<dynamic, dynamic>? data = await platform.invokeMethod('generateKeys');
+      final Map<dynamic, dynamic>? data =
+          await platform.invokeMethod('generateKeys');
       result = data?['udid'];
       print(data?['privateKey']);
     } on PlatformException catch (e) {
@@ -38,7 +48,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future _makeRegisterRequest() async {
     try {
-      final Map<dynamic, dynamic>? data = await platform.invokeMethod('makeRegisterRequest');
+      final Map<dynamic, dynamic>? data =
+          await platform.invokeMethod('makeRegisterRequest');
       final result = await HttpUtil().post('/ios.php', data: jsonEncode(data));
       setState(() {
         serverAnswerModel = ServerAnswerModel.fromJson(result);
@@ -51,7 +62,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future _makeLoginRequest() async {
     try {
-      final Map<dynamic, dynamic>? data = await platform.invokeMethod('makeLoginRequest');
+      final Map<dynamic, dynamic>? data =
+          await platform.invokeMethod('makeLoginRequest');
       print(data);
     } on PlatformException catch (e) {
       result = 'Error: ${e.message}';
@@ -70,19 +82,15 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              serverAnswerModel?.workStatus?.udid ?? serverAnswerModel?.errorStatus ?? '',
+              serverAnswerModel?.workStatus?.udid ??
+                  serverAnswerModel?.errorStatus ??
+                  '',
             ),
             MaterialButton(
-              onPressed: ()async{
-                final udid = await FlutterUdid.udid;
-                final rnd = UuidV4().generate();
-                final concat = udid + rnd;
-                final signature = await rsaManager.createHash(concat);
-                final publicKey = await RSA.base64(rsaManager.publicKey);
-                final request = RegisterRequest(udid: udid, rnd: rnd, signature: signature, pmk: publicKey);
-                final result = await HttpUtil().post('/ios.php', data: jsonEncode(request.toMap()));
+              onPressed: () async {
+                final result = await requestFunc3();
                 setState(() {
-                  serverAnswerModel = ServerAnswerModel.fromJson(result);
+                  serverAnswerModel = result;
                 });
               },
               color: Colors.red,
@@ -93,5 +101,53 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  Future<ServerAnswerModel> requestFunc3() async {
+    const udid =
+        '933E8F70-D9B6-409D-8A48-1D8113C2D3B6'; //'' //await FlutterUdid.udid;
+    final rnd = const UuidV4().generate();
+    final concat = udid + rnd;
+    final signature = basicUtilManager.signData(concat);
+    final publicKey = base64Encode(basicUtilManager.pemRsaPublicKey.codeUnits);
+
+    final request = RegisterRequest(
+        udid: udid, rnd: rnd, signature: signature, pmk: publicKey);
+    final result =
+        await HttpUtil().post('/ios.php', data: jsonEncode(request.toMap()));
+    print(ServerAnswerModel.fromJson(result).errorStatus);
+    return ServerAnswerModel.fromJson(result);
+  }
+
+  Future<ServerAnswerModel> requestFunc() async {
+    final udid = '933E8F70-D9B6-409D-8A48-1D8113C2D3B6';
+    ; //await FlutterUdid.udid;
+    final rnd = const Uuid().v4();
+    final concat = udid + rnd;
+    final signature = rsaGenerator.createSignature(concat);
+    final publicKey = rsaGenerator.stringifyPub();
+
+    final request = RegisterRequest(
+        udid: udid, rnd: rnd, signature: signature, pmk: publicKey.toString());
+    final result =
+        await HttpUtil().post('/ios.php', data: jsonEncode(request.toMap()));
+    print(ServerAnswerModel.fromJson(result).errorStatus);
+    return ServerAnswerModel.fromJson(result);
+  }
+
+  Future<ServerAnswerModel> requestFunc2() async {
+    const udid =
+        '933E8F70-D9B6-409D-8A48-1D8113C2D3B6'; //'' //await FlutterUdid.udid;
+    final rnd = const UuidV4().generate();
+    final concat = udid + rnd;
+    final signature = await rsaManager.createHash(concat);
+    final publicKey = await RSA.base64(rsaManager.publicKey);
+
+    final request = RegisterRequest(
+        udid: udid, rnd: rnd, signature: signature, pmk: publicKey.toString());
+    final result =
+        await HttpUtil().post('/ios.php', data: jsonEncode(request.toMap()));
+    print(ServerAnswerModel.fromJson(result).errorStatus);
+    return ServerAnswerModel.fromJson(result);
   }
 }

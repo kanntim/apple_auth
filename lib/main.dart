@@ -1,7 +1,9 @@
 import 'package:apple_auth/home_page.dart';
+import 'package:apple_auth/rsa_generator.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  await RSAGenerator().init();
   runApp(const MyApp());
 }
 

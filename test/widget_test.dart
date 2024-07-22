@@ -5,26 +5,44 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'dart:convert';
 
-import 'package:apple_auth/main.dart';
+import 'package:apple_auth/rsa_generator.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:pointycastle/asymmetric/api.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  late final RSAGenerator rsaGenerator = RSAGenerator()..init();
+  const message = 'Hello World';
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  group('RSAGenerator tests', () {
+    test('Key generation', () async {
+      expect(rsaGenerator.privateKey, isA<RSAPrivateKey>());
+      expect(rsaGenerator.publicKey, isA<RSAPublicKey>());
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test(
+      'Sign and verify',
+      () async {
+        final signature = rsaGenerator.createSignature(message);
+        expect(signature, isNotEmpty);
+        final verified = rsaGenerator.verifySignature(message, signature);
+        expect(verified, isTrue);
+      },
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('Verify signature by loadedPubKey', () async {
+      final encryptedSignature =
+          base64Encode(rsaGenerator.createSignature(message).codeUnits);
+      expect(encryptedSignature, isNotEmpty);
+      final loadedPublicKey =
+          base64.encode(rsaGenerator.stringifyPub().codeUnits);
+      final unpackedPublicKey =
+          rsaGenerator.loadPublicKeyFromDer(base64Decode(loadedPublicKey));
+      final verified = rsaGenerator.verifySignature(message, encryptedSignature,
+          loadedPublicKey: unpackedPublicKey);
+
+      expect(verified, true);
+    });
   });
 }
