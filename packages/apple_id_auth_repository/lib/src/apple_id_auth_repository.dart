@@ -1,11 +1,10 @@
-import 'package:apple_auth/apple_credential_model.dart';
+import 'dart:async';
+
+import 'package:apple_id_auth_repository/src/models/apple_credential_model.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
-class AppleIdAuth {
-  const AppleIdAuth();
-  static const serverLink = 'https://vp-line.aysec.org/ios.php';
-
-  static Future<AppleCredentialModel> getAppleIDCredential() async {
+class AppleIdAuthRepository {
+  Future<AppleCredentialModel> getAppleIDCredential() async {
     try {
       final result = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -19,6 +18,7 @@ class AppleIdAuth {
       );
       final authorizationCode = result.authorizationCode;
       final identityToken = result.identityToken;
+
       print(authorizationCode);
       print(identityToken);
       return AppleCredentialModel(
@@ -29,7 +29,7 @@ class AppleIdAuth {
     }
   }
 
-  static Future<void> signInWithCredential() async {
+  Future<void> _signInWithCredential() async {
     try {
       final credentials = await getAppleIDCredential();
       // final response = await http.post(serverLink, body: {

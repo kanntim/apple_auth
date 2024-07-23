@@ -1,13 +1,15 @@
-import 'package:apple_auth/home_page.dart';
-import 'package:apple_auth/rsa_generator.dart';
+import 'package:apple_auth/app.dart';
 import 'package:flutter/material.dart';
+import 'package:key_manager/key_manager.dart';
 
 void main() async {
-  await RSAGenerator().init();
-  runApp(const MyApp());
+  RsaManager().init();
+  RSAGenerator().init();
+  CryptoUtilsManager().init();
+  runApp(const App());
 }
 
-class MyApp extends StatelessWidget {
+/*class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
@@ -22,4 +24,4 @@ class MyApp extends StatelessWidget {
       home: const MyHomePage(title: 'Flutter Apple Auth'),
     );
   }
-}
+}*/

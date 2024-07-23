@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:fast_rsa/fast_rsa.dart';
 
@@ -6,7 +7,17 @@ class RsaManager {
   late final String publicKey;
   late final String privateKey;
 
-  RsaManager() {
+  static final RsaManager _instance = RsaManager._internal();
+
+  factory RsaManager() {
+    return _instance;
+  }
+
+  RsaManager._internal();
+
+  String get base64PemPubKey => base64Encode(publicKey.codeUnits);
+
+  init() {
     unawaited(generate().then((keyPair) {
       publicKey = keyPair.publicKey;
       privateKey = keyPair.privateKey;

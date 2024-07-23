@@ -24,6 +24,6 @@ class RegisterRequest extends RequestModel {
         "udid": udid,
         "rnd": rnd,
         "pmk": pmk,
-        "signature": signature,
+        "signature": "\"$signature\"",
       };
 }

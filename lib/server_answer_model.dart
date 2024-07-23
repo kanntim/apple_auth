@@ -1,4 +1,6 @@
-class ServerAnswerModel {
+import 'package:equatable/equatable.dart';
+
+class ServerAnswerModel extends Equatable {
   const ServerAnswerModel({
     required this.error,
     this.errorStatus,
@@ -17,6 +19,10 @@ class ServerAnswerModel {
           : null,
     );
   }
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [errorStatus, workStatus, error];
 }
 
 class UserModel {

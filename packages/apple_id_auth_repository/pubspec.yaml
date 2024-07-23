@@ -1,0 +1,9 @@
+name: apple_id_auth_repository
+description: Dart package which manages the authentication domain.
+publish_to: none
+
+environment:
+  sdk: '>=3.4.4 <4.0.0'
+
+dependencies:
+  sign_in_with_apple: ^6.1.1

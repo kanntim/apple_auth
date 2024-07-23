@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:apple_auth/der_codec.dart';
+import 'package:basic_utils/basic_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart';
 import 'package:pointycastle/asymmetric/rsa.dart';
@@ -11,6 +11,8 @@ import 'package:pointycastle/key_generators/rsa_key_generator.dart';
 import 'package:pointycastle/pointycastle.dart';
 import 'package:pointycastle/random/fortuna_random.dart';
 import 'package:pointycastle/signers/rsa_signer.dart';
+
+import 'der_codec.dart';
 
 class RSAGenerator {
   late final RSAPublicKey publicKey;
@@ -32,7 +34,7 @@ class RSAGenerator {
 
   String stringifyPub() {
     final derPublic = encodePublicKeyToDER(publicKey);
-    return DerCodec.encodeDERToPEM(derPublic);
+    return base64Encode(DerCodec.encodeSignatureToDER(derPublic!));
   }
 
   // Генерация пары ключей RSA
@@ -45,28 +47,36 @@ class RSAGenerator {
     return keyGen.generateKeyPair();
   }
 
-// Кодирование публичного ключа в DER
+  String base64PemPubKey() {
+    final derData = encodePublicKeyToDER(publicKey)!;
+    var dataBase64 = base64.encode(derData);
+    var chunks = StringUtils.chunk(dataBase64, 64);
+
+    return '$BEGIN_PUBLIC_KEY\n${chunks.join('\n')}\n$END_PUBLIC_KEY';
+  }
+
+  // Кодирование публичного ключа в DER
   Uint8List? encodePublicKeyToDER(RSAPublicKey publicKey) {
     // Создаем последовательность для алгоритма
-    final algorithmSeq = ASN1Sequence();
-    algorithmSeq.add(ASN1ObjectIdentifier.fromName(
-        '1.2.840.113549.1.1.1')); // RSA Encryption
-    algorithmSeq.add(ASN1Null()); // Padding (NULL)
+    var algorithmSeq = ASN1Sequence();
+    var paramsAsn1Obj = ASN1Object.fromBytes(Uint8List.fromList([0x5, 0x0]));
+    algorithmSeq.add(ASN1ObjectIdentifier.fromName('rsaEncryption'));
+    algorithmSeq.add(paramsAsn1Obj);
 
     // Создаем последовательность для публичного ключа
-    final publicKeySeq = ASN1Sequence();
+    var publicKeySeq = ASN1Sequence();
     publicKeySeq.add(ASN1Integer(publicKey.modulus));
     publicKeySeq.add(ASN1Integer(publicKey.exponent));
 
     // Кодируем ключ в DER формат
-    final publicKeyData = ASN1BitString(stringValues: publicKeySeq.valueBytes);
+    var publicKeySeqBitString =
+        ASN1BitString(stringValues: Uint8List.fromList(publicKeySeq.encode()));
 
     // Создаем последовательность для SubjectPublicKeyInfo
-    final subjectPublicKeyInfo = ASN1Sequence();
-    subjectPublicKeyInfo.add(algorithmSeq);
-    subjectPublicKeyInfo.add(publicKeyData);
-
-    return subjectPublicKeyInfo.encodedBytes;
+    var topLevelSeq = ASN1Sequence();
+    topLevelSeq.add(algorithmSeq);
+    topLevelSeq.add(publicKeySeqBitString);
+    return topLevelSeq.encode();
   }
 
   SecureRandom getSecureRandom() {
@@ -144,4 +154,7 @@ class RSAGenerator {
   BigInt bigIntFromBytes(Uint8List bytes) {
     return BigInt.parse(HEX.encode(bytes), radix: 16);
   }
+
+  static const BEGIN_PUBLIC_KEY = '-----BEGIN PUBLIC KEY-----';
+  static const END_PUBLIC_KEY = '-----END PUBLIC KEY-----';
 }

@@ -27,33 +27,23 @@ class CryptoUtilsManager {
         ...CryptoUtils.rsaPublicKeyExponentToBytes(publicKey)
       ]);
 
+  toDer(RSAPublicKey key) {
+    return Uint8List.fromList([
+      ...CryptoUtils.rsaPublicKeyModulusToBytes(publicKey),
+      ...CryptoUtils.rsaPublicKeyExponentToBytes(publicKey)
+    ]);
+  }
+
   //to PEM
   String get pemRsaPublicKey {
-    final der = CryptoUtils.encodeRSAPublicKeyToPemPkcs1(publicKey);
-    final pem = encodeDERToPEM(utf8.encode(der));
-    return der; //base64Encode(utf8.encode(pem));
-  }
-
-  static String encodeDERToPEM(Uint8List? derBytes) {
-    final base64DER = base64Encode(derBytes!);
-    final chunks = _chunk(base64DER, 64);
-    final pemString =
-        '-----BEGIN PUBLIC KEY-----\n${chunks.join('\n')}\n-----END PUBLIC KEY-----';
-    return pemString;
-  }
-
-  static List<String> _chunk(String str, int size) {
-    List<String> chunks = [];
-    for (var i = 0; i < str.length; i += size) {
-      chunks
-          .add(str.substring(i, i + size > str.length ? str.length : i + size));
-    }
-    return chunks;
+    final pem = CryptoUtils.encodeRSAPublicKeyToPem(publicKey);
+    return base64Encode(pem.codeUnits);
   }
 
   String signData(String data) {
-    final hashedData =
-        CryptoUtils.getHashPlain(utf8.encode(data), algorithmName: 'SHA-1');
+    final hashedData = CryptoUtils.getHashPlain(
+        Uint8List.fromList(data.codeUnits),
+        algorithmName: 'SHA-1');
     final signature = CryptoUtils.rsaSign(privateKey, hashedData,
         algorithmName: 'SHA-256/RSA');
     return base64Encode(signature);

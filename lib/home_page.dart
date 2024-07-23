@@ -1,15 +1,12 @@
 import 'dart:convert';
 
-import 'package:apple_auth/apple_sign_in.dart';
-import 'package:apple_auth/crypto_utils_manager.dart';
 import 'package:apple_auth/http_service.dart';
 import 'package:apple_auth/request_models.dart';
-import 'package:apple_auth/rsa_generator.dart';
-import 'package:apple_auth/rsa_manager.dart';
 import 'package:apple_auth/server_answer_model.dart';
 import 'package:fast_rsa/fast_rsa.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:key_manager/key_manager.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/v4.dart';
 
@@ -96,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.red,
               child: const Text('Generate RSA Key Pair'),
             ),
-            const AppleSignInButton(),
+            //const AppleSignInButton(),
           ],
         ),
       ),

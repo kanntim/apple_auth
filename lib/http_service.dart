@@ -22,12 +22,12 @@ class HttpUtil {
   static final HttpUtil _instance = HttpUtil._internal();
   late Dio dio;
 
-  Future<Map<String, dynamic>> post(String path, {
+  Future<Map<String, dynamic>> post(
+    String path, {
     dynamic data,
     Map<String, dynamic>? queryParams,
     Options? options,
   }) async {
-
     final requestOptions = options ?? Options();
     requestOptions.headers = requestOptions.headers ?? {};
     // final authorization = getAuthorizationHeader();
@@ -56,13 +56,12 @@ class HttpUtil {
     }
   }
 
-  Future<dynamic> get(String path, {
+  Future<dynamic> get(
+    String path, {
     dynamic data,
     Map<String, dynamic>? queryParams,
     Options? options,
   }) async {
-
-
     final requestOptions = options ?? Options();
     requestOptions.headers = requestOptions.headers ?? {};
     // final authorization = getAuthorizationHeader();
@@ -82,9 +81,11 @@ class HttpUtil {
         return {};
       }
     } on DioException catch (e) {
-      debugPrint('||||||||||||||||||||||||||ERROR||||||||||||||||||||||||||||||');
+      debugPrint(
+          '||||||||||||||||||||||||||ERROR||||||||||||||||||||||||||||||');
       debugPrint(e.response.toString());
-      debugPrint('||||||||||||||||||||||||||ERROR||||||||||||||||||||||||||||||');
+      debugPrint(
+          '||||||||||||||||||||||||||ERROR||||||||||||||||||||||||||||||');
       rethrow;
     }
   }

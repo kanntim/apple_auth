@@ -7,8 +7,8 @@
 
 import 'dart:convert';
 
-import 'package:apple_auth/rsa_generator.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:key_manager/key_manager.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 
 void main() {

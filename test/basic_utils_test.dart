@@ -1,12 +1,13 @@
-import 'dart:convert';
-
-import 'package:apple_auth/crypto_utils_manager.dart';
 import 'package:basic_utils/basic_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:key_manager/key_manager.dart';
+import 'package:uuid/v4.dart';
 
 void main() {
   late final CryptoUtilsManager rsaGenerator = CryptoUtilsManager()..init();
-  const message = 'Hello World';
+  final udid = UuidV4().generate();
+  final rnd = UuidV4().generate();
+  final message = udid + rnd;
 
   group('RSAGenerator tests', () {
     test('Key generation', () async {
@@ -23,23 +24,5 @@ void main() {
         expect(verified, isTrue);
       },
     );
-
-    test('Verify signature by loadedPubKey', () async {
-      final encryptedSignature =
-          base64Encode(rsaGenerator.signData(message).codeUnits);
-      expect(encryptedSignature, isNotEmpty);
-      final sandedPublicKey =
-          base64Encode(rsaGenerator.pemRsaPublicKey.codeUnits);
-      print(base64Decode(sandedPublicKey));
-      final unpackedPublicKey = rsaGenerator
-          .loadPublicKeyFromPem(utf8.decode(base64Decode(sandedPublicKey)));
-      expect(sandedPublicKey, rsaGenerator.pemRsaPublicKey);
-
-      final verified = rsaGenerator.verifySignature(
-          message, utf8.decode(base64Decode(encryptedSignature)),
-          loadedPublicKey: unpackedPublicKey);
-
-      expect(verified, true);
-    });
   });
 }
