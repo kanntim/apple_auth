@@ -5,7 +5,7 @@ class AuthRequest{
     let oper: String
     let signer: Signer
     var udid: String? = UIDevice.current.identifierForVendor?.uuidString
-    var rnd: String  = UUID().uuidString
+    var rnd: String  = UUID().uuidString.uppercased()
     init(
         oper: String,
         signer:Signer) {
@@ -14,7 +14,6 @@ class AuthRequest{
     }
     
     func mackeConcat()->String {
-        print("CONCAT: ", udid!+rnd)
         return udid! + rnd
     }
     
@@ -45,7 +44,7 @@ class AuthRegisterRequest: AuthRequest{
             "oper": oper,
             "udid": udid ?? "",
             "rnd": rnd,
-            "pmk": KeyController.getStringifyKey(key: signer.publicKey, type: "RSA PUBLIC KEY") ?? "" ,
+            "pmk": KeyController.getStringifyKey(key: signer.publicKey, type: "PUBLIC KEY") ?? "" ,
             "signature": signer.signData(mackeConcat()) ?? ""
         ] as NSDictionary
     }

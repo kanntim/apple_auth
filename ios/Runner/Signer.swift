@@ -1,7 +1,6 @@
 
 import Foundation
 import CommonCrypto
-import CryptoKit
 
 class Signer{
     var privateKey: SecKey
@@ -11,21 +10,27 @@ class Signer{
             self.publicKey = publicKey
         }
     
-     func sha1Hash(_ input: String) -> Data {
-        let data = input.data(using: .utf8)!
-         let hashed = Insecure.SHA1.hash(data: data)
-         let hashedString = hashed.compactMap { String(format: "%02x", $0) }.joined()
-         print("SHA1 encrypted: ", hashedString)
-         return Data(hashedString.utf8)
-    }
+     
     
      func signData(_ input: String) -> String? {
-         let hashedData = sha1Hash(input)
+         let hashedData = input.sha1()
         var error: Unmanaged<CFError>?
         guard let signature = SecKeyCreateSignature(privateKey, .rsaSignatureMessagePKCS1v15SHA256, hashedData as CFData, &error) else {
             print("Error signing data: \(error!.takeRetainedValue() as Error)")
             return nil
         }
-         return (signature as Data).base64EncodedString(options: .lineLength64Characters)
+         return (signature as Data).base64EncodedString()
+    }
+}
+
+extension String {
+    func sha1() -> Data {
+        let data = Data(self.utf8)
+        var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
+        data.withUnsafeBytes {
+            _ = CC_SHA1($0.baseAddress, CC_LONG(data.count), &digest)
+        }
+        //let hexBytes = digest.map { String(format: "%02hhx", $0) }
+        return Data(digest)//hexBytes.joined()
     }
 }

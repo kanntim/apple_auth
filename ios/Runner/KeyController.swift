@@ -7,113 +7,145 @@ class KeyController{
 
     static func generateKeyPair() -> (privateKey: SecKey?, publicKey: SecKey?) {
         var error: Unmanaged<CFError>?
-        let parameters: [String: Any] = [
-            kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
-            kSecAttrIsPermanent as String: true,
-            kSecAttrKeySizeInBits as String: 2048,
-        ]
-        
-//        var publicKey: SecKey?
-//        var privateKey: SecKey?
-        
-        let privateKey = SecKeyCreateRandomKey(parameters as CFDictionary, &error)
-        let publicKey = SecKeyCopyPublicKey(privateKey!)
-        publicKey
-        return (privateKey, publicKey)
-        
-        
-//        let status = SecKeyGeneratePair(parameters as CFDictionary, &publicKey, &privateKey)
-//        
-//        guard status == errSecSuccess, let privateKey = privateKey, let publicKey = publicKey else {
-//            return (nil, nil)
-//        }
-//        
-//        return (privateKey,publicKey)
-    }
-    
-    static func getStringifyKey(key: SecKey?, type: String)-> String?{
-        print("\nApple key: ", key!)
-        
-        guard let keyData = SecKeyCopyExternalRepresentation(key!, nil) as Data?
-        else {
-                    return nil
-                }
-        print("\nData from Apple key",keyData.base64EncodedString())
-//        var derFromPem = keyData.base64EncodedString().replacingOccurrences(of: "-----BEGIN CERTIFICATE-----", with: "")
-//        derFromPem =  derFromPem.replacingOccurrences(of: "-----END CERTIFICATE-----", with: "")
-//        derFromPem =  derFromPem.replacingOccurrences(of: "\n", with: "")
-//        print(derFromPem)
-//        let dataDecoded = NSData(base64Encoded: derFromPem, options: [])
+        let publicKeyAttr: [NSObject: NSObject] = [
+                    kSecAttrIsPermanent:true as NSObject,
+                    kSecClass: kSecClassKey, // added this value
+                    kSecReturnData: kCFBooleanTrue] // added this value
+        let privateKeyAttr: [NSObject: NSObject] = [
+                    kSecAttrIsPermanent:true as NSObject,
+                    kSecClass: kSecClassKey, // added this value
+                    kSecReturnData: kCFBooleanTrue] // added this value
 
-        do{
-            let keyDerFormat = try convertSecKeyToDerKeyFormat(publicKey: key!)
-            print("\nDER format key:\n")
-            print(keyDerFormat.base64EncodedString())
+        var keyPairAttr = [NSObject: NSObject]()
+        keyPairAttr[kSecAttrKeyType] = kSecAttrKeyTypeRSA
+        keyPairAttr[kSecAttrKeySizeInBits] = 2048 as NSObject
+        keyPairAttr[kSecPublicKeyAttrs] = publicKeyAttr as NSObject
+        keyPairAttr[kSecPrivateKeyAttrs] = privateKeyAttr as NSObject
+
+        var publicKey : SecKey?
+        var privateKey : SecKey?;
+
+        let statusCode = SecKeyGeneratePair(keyPairAttr as CFDictionary, &publicKey, &privateKey)
+        print(publicKey)
+        if statusCode == noErr && publicKey != nil && privateKey != nil {
+            print("Key pair generated OK")
+            var resultPublicKey: AnyObject?
+            let statusPublicKey = SecItemCopyMatching(publicKeyAttr as CFDictionary, &resultPublicKey)
             
-            let keyPem = derToPem(der: keyData, type: type)
-            print("\nKey resulting PEM from DER",keyPem)
-            return keyPem.base64EncodedString(options: .lineLength64Characters)
-        }catch{
-            print(error)
-            return nil
-        }
-    }
-    
-    static func addDerKeyInfo(rawPublicKey:[UInt8]) -> [UInt8] {
-       let DerHdrSubjPubKeyInfo:[UInt8]=[
-           /* Ref: RFC 5480 - SubjectPublicKeyInfo's ASN encoded header */
-           0x30, 0x59, /* SEQUENCE */
-           0x30, 0x13, /* SEQUENCE */
-           0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, /* oid: 1.2.840.10045.2.1   */
-           0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07, /* oid: 1.2.840.10045.3.1.7 */
-           0x03, 0x42, /* BITSTRING */
-           0x00 /* unused number of bits in bitstring, followed by raw public-key bits */]
-       let derKeyInfo = DerHdrSubjPubKeyInfo + rawPublicKey
-       return derKeyInfo
-   }
-    
-    static func convertbase64StringToByteArray(base64String: String) -> [UInt8] {
-        if let nsdata = NSData(base64Encoded: base64String, options: NSData.Base64DecodingOptions.ignoreUnknownCharacters)  {
-            var bytes = [UInt8](repeating: 0, count: nsdata.length)
-            nsdata.getBytes(&bytes,length: nsdata.length)
-            return bytes
-        }
-        else
-        {
-            print("Invalid base64 String")
-        }
-        return []
-    }
-    
-    static func convertSecKeyToDerKeyFormat(publicKey:SecKey) throws -> Data
-    { var error: Unmanaged<CFError>?
-        do
-        {
-            if let externalRepresentationOfPublicKey = SecKeyCopyExternalRepresentation(publicKey,&error)
-            {
-                let derKeyFormat = externalRepresentationOfPublicKey as Data
-                var publicKeyByteArray = convertbase64StringToByteArray(base64String: derKeyFormat.base64EncodedString())
-                publicKeyByteArray =  addDerKeyInfo(rawPublicKey: publicKeyByteArray)
-                let pubKey = Data(publicKeyByteArray)
-                return pubKey
-            }
-            else
-            {
-                throw error as! Error
-            }
-        }
-        catch
-        {
-            throw error
-        }
-    }
 
-    static func derToPem(der: Data, type: String) -> Data {
-        let encoded = der.base64EncodedString(options: .lineLength64Characters)
+            if statusPublicKey == noErr {
+                if let publicKey = resultPublicKey as? Data {
+                    print("Public Key: \((publicKey.base64EncodedString()))")
+                }
+            }
+        } else {
+            print("Error generating key pair: \(String(describing: statusCode))")
+        }
+        
+        return (privateKey, publicKey)
+    }
+    
+    static func getStringifyKey(key: SecKey, type: String)-> String?{
+        
+        let pub = DerCodec.exp_modToPEM(publicKey: key)
+        let pemString = "-----BEGIN \(type)-----\r\n\(pub)\r\n-----END  \(type)-----\r\n"
+        
+        //print("\nResulting PEM: ", pemString)
+        return pemString.toBase64()
+        
+        let publicKeyAttr: [NSObject: NSObject] = [
+                    kSecAttrIsPermanent:true as NSObject,
+                    kSecClass: kSecClassKey, // added this value
+                    kSecReturnData: kCFBooleanTrue] // added this value
+        
+        var resultPublicKey: AnyObject?
+        let statusPublicKey = SecItemCopyMatching(publicKeyAttr as CFDictionary, &resultPublicKey)
+     
+        if statusPublicKey == noErr {
+                if let publicKey = resultPublicKey as? Data {
+                    let toDer = derToPem(der: publicKey, type: type)
+                    return toDer
+                }
+            }
+        return nil
+    }
+    
+    static func derToPem(der: Data, type: String) -> String {
+        let encoded = der.dataByPrependingX509Header().base64EncodedString(options: [.lineLength64Characters, .endLineWithLineFeed])
+        
         let pemString = "-----BEGIN \(type)-----\r\n\(encoded)\r\n-----END  \(type)-----\r\n"
         
-        print("\nResulting PEM: ", pemString)
-        return der
+        //print("\nResulting PEM: ", pemString)
+        return pemString.toBase64()
     }
 }
 
+extension String {
+
+    func fromBase64() -> String? {
+        guard let data = Data(base64Encoded: self) else {
+            return nil
+        }
+
+        return String(data: data, encoding: .utf8)
+    }
+
+    func toBase64() -> String {
+        return Data(self.utf8).base64EncodedString()
+    }
+
+}
+
+extension NSInteger{
+    func encodedOctets() -> [CUnsignedChar] {
+            // Short form
+            if self < 128 {
+                return [CUnsignedChar(self)];
+            }
+            
+            // Long form
+            let i = Int(log2(Double(self)) / 8 + 1)
+            var len = self
+            var result: [CUnsignedChar] = [CUnsignedChar(i + 0x80)]
+            
+            for _ in 0..<i {
+                result.insert(CUnsignedChar(len & 0xFF), at: 1)
+                len = len >> 8
+            }
+            
+            return result
+        }
+}
+
+extension Data{
+    func dataByPrependingX509Header() -> Data {
+            let result = NSMutableData()
+            
+            let encodingLength: Int = (self.count + 1).encodedOctets().count
+            let OID: [CUnsignedChar] = [0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86,
+                0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00]
+            
+            var builder: [CUnsignedChar] = []
+            
+            // ASN.1 SEQUENCE
+            builder.append(0x30)
+            
+            // Overall size, made of OID + bitstring encoding + actual key
+            let size = OID.count + 2 + encodingLength + self.count
+            let encodedSize = size.encodedOctets()
+            builder.append(contentsOf: encodedSize)
+            result.append(builder, length: builder.count)
+            result.append(OID, length: OID.count)
+            builder.removeAll(keepingCapacity: false)
+            
+            builder.append(0x03)
+            builder.append(contentsOf: (self.count + 1).encodedOctets())
+            builder.append(0x00)
+            result.append(builder, length: builder.count)
+            
+            // Actual key bytes
+            result.append(self)
+            
+            return result as Data
+        }
+}

@@ -21,10 +21,9 @@ func setupMethodChannel(with registrar: FlutterPluginRegistrar) {
     channel.setMethodCallHandler { (call, result) in
         if call.method == "generateKeys" {
             let keys = KeyController.generateKeyPair()
-            var privateKey = KeyController.getStringifyKey(key:keys.privateKey, type: "PRIVATE KEY")
-            var publicKey = KeyController.getStringifyKey(key:keys.privateKey, type: "PUBLIC KEY")
+            let publicKey = KeyController.getStringifyKey(key:keys.privateKey!, type: "PUBLIC KEY")
             result([
-                "privateKey": privateKey,
+                "privateKey": (SecKeyCopyExternalRepresentation(keys.privateKey!, nil)! as Data).base64EncodedString(),
                 "publicKey": publicKey,
                 "udid": UIDevice.current.identifierForVendor?.uuidString
             ])
