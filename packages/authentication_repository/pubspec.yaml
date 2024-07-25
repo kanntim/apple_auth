@@ -6,6 +6,8 @@ environment:
   sdk: '>=3.4.4 <4.0.0'
 
 dependencies:
+  flutter:
+    sdk: flutter
   http_util:
     path: ../http_util
   equatable: ^2.0.5

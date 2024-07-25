@@ -27,11 +27,7 @@ class App extends StatelessWidget {
         ),
       ],
       child: BlocProvider(
-        create: (_) => AuthenticationBloc(
-          authenticationRepository:
-              InjectionContainer.sl<AuthenticationRepository>(),
-          userRepository: InjectionContainer.sl<UserRepository>(),
-        ),
+        create: (_) => InjectionContainer.sl<AuthenticationBloc>(),
         child: const AppView(),
       ),
     );

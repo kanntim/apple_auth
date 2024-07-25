@@ -25,15 +25,16 @@ class RegisterRequest extends RequestModel {
         "rnd": rnd,
         "pmk": pmk,
         "signature": signature,
-
-        /// Tests
-        "lang": "en",
-        "hard_model": "iPhone",
-        "hard_os": "17.5.1",
-        "hard_name": "iPhone",
-        "hard_lmodel": "iPhone",
-        "hard_fmodel": "2BFAFA6D-0E85-1898-A068-E723AA1539D9",
       };
+
+  factory RegisterRequest.fromMap(Map<String, dynamic> map) {
+    return RegisterRequest(
+      udid: map['udid'],
+      rnd: map['rnd'],
+      signature: map['signature'],
+      pmk: map['pmk'],
+    );
+  }
 }
 
 class LoginRequest extends RequestModel {
@@ -59,4 +60,15 @@ class LoginRequest extends RequestModel {
         "email": email ?? '',
         "lang": "en",
       };
+
+  factory LoginRequest.fromMap(Map<String, dynamic> map) {
+    return LoginRequest(
+      udid: map['udid'],
+      rnd: map['rnd'],
+      signature: map['signature'],
+      pmk: map['pmk'],
+      login: map['login'],
+      email: map['email'],
+    );
+  }
 }

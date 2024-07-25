@@ -26,7 +26,7 @@ class KeyController{
         var privateKey : SecKey?;
 
         let statusCode = SecKeyGeneratePair(keyPairAttr as CFDictionary, &publicKey, &privateKey)
-        
+        print(publicKey)
         if statusCode == noErr && publicKey != nil && privateKey != nil {
             print("Key pair generated OK")
             var resultPublicKey: AnyObject?

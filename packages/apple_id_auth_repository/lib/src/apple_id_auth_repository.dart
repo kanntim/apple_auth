@@ -19,9 +19,6 @@ class AppleIdAuthRepository {
       final authorizationCode = result.authorizationCode;
       final identityToken = result.identityToken;
 
-      final state = await SignInWithApple.getCredentialState(identityToken!);
-
-      final keys = await SignInWithApple.getKeychainCredential();
 
       return AppleCredentialModel(
           email: result.email, userIdentifier: result.userIdentifier!);

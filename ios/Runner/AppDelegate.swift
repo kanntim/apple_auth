@@ -54,7 +54,7 @@ func setupMethodChannel(with registrar: FlutterPluginRegistrar) {
                 result(FlutterError.init(code: "bad args", message: nil, details: nil))
               }
             
-        }else {
+        } else {
             result(FlutterMethodNotImplemented)
         }
     }
