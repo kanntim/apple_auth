@@ -8,6 +8,7 @@ final class LoginSubmitted extends LoginEvent {
   const LoginSubmitted();
 }
 
-final class LoginTestCrypto extends LoginEvent {
-  const LoginTestCrypto();
+final class LoginRealizationChanged extends LoginEvent {
+  const LoginRealizationChanged(this.type);
+  final RealizationType type;
 }

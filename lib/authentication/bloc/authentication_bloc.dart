@@ -19,6 +19,7 @@ class AuthenticationBloc
         super(const AuthenticationState.unknown()) {
     on<_AuthenticationStatusChanged>(_onAuthenticationStatusChanged);
     on<AuthenticationLogoutRequested>(_onAuthenticationLogoutRequested);
+    on<AuthenticationReset>(_onAuthenticationReset);
     _authenticationStatusSubscription = _authenticationRepository.status.listen(
       (status) => add(_AuthenticationStatusChanged(status)),
     );
@@ -36,6 +37,14 @@ class AuthenticationBloc
     return super.close();
   }
 
+  Future<void> _onAuthenticationReset(
+    AuthenticationReset event,
+    Emitter<AuthenticationState> emit,
+  ) async {
+    await _userRepository.deleteAll();
+    _authenticationRepository.logOut();
+  }
+
   Future<void> _onAuthenticationStatusChanged(
     _AuthenticationStatusChanged event,
     Emitter<AuthenticationState> emit,
@@ -44,7 +53,7 @@ class AuthenticationBloc
       case AuthenticationStatus.unauthenticated:
         return emit(const AuthenticationState.unauthenticated());
       case AuthenticationStatus.authenticated:
-        final user = await _tryGetUser();
+        final user = await _tryGetUser(state.user.udid);
         return emit(
           user != null
               ? AuthenticationState.authenticated(user)
@@ -62,9 +71,9 @@ class AuthenticationBloc
     _authenticationRepository.logOut();
   }
 
-  Future<User?> _tryGetUser() async {
+  Future<User?> _tryGetUser(String userId) async {
     try {
-      final user = await _userRepository.getUser();
+      final user = await _userRepository.getUser(userId);
       return user;
     } catch (_) {
       return null;

@@ -1,0 +1,13 @@
+name: local_data_source
+description: Dart package which manages the local source.
+publish_to: none
+
+environment:
+  sdk: '>=3.4.4 <4.0.0'
+
+dependencies:
+  shared_preferences: ^2.2.3
+  equatable: ^2.0.5
+  uuid: ^4.4.2
+
+

@@ -1,4 +1,5 @@
 import 'package:apple_auth/authentication/bloc/authentication_bloc.dart';
+import 'package:apple_auth/core/srvices/injection_container.dart';
 import 'package:apple_auth/home/view/home_page.dart';
 import 'package:apple_auth/login/view/login_page.dart';
 import 'package:apple_auth/splash/view/splash_page.dart';
@@ -8,46 +9,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_repository/user_repository.dart';
 
-class App extends StatefulWidget {
+class App extends StatelessWidget {
   const App({super.key});
-
-  @override
-  State<App> createState() => _AppState();
-}
-
-class _AppState extends State<App> {
-  late final AuthenticationRepository _authenticationRepository;
-  late final AppleIdAuthRepository _appleIdAuthRepository;
-  late final UserRepository _userRepository;
-  @override
-  void initState() {
-    super.initState();
-    _appleIdAuthRepository = AppleIdAuthRepository();
-    _authenticationRepository = AuthenticationRepository();
-    _userRepository = UserRepository();
-  }
-
-  @override
-  void dispose() {
-    _authenticationRepository.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(
-          value: _appleIdAuthRepository,
+          value: InjectionContainer.sl<UserRepository>(),
         ),
         RepositoryProvider.value(
-          value: _authenticationRepository,
+          value: InjectionContainer.sl<AppleIdAuthRepository>(),
+        ),
+        RepositoryProvider.value(
+          value: InjectionContainer.sl<AuthenticationRepository>(),
         ),
       ],
       child: BlocProvider(
         create: (_) => AuthenticationBloc(
-          authenticationRepository: _authenticationRepository,
-          userRepository: _userRepository,
+          authenticationRepository:
+              InjectionContainer.sl<AuthenticationRepository>(),
+          userRepository: InjectionContainer.sl<UserRepository>(),
         ),
         child: const AppView(),
       ),

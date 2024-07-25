@@ -19,26 +19,14 @@ class AppleIdAuthRepository {
       final authorizationCode = result.authorizationCode;
       final identityToken = result.identityToken;
 
-      print(authorizationCode);
-      print(identityToken);
+      final state = await SignInWithApple.getCredentialState(identityToken!);
+
+      final keys = await SignInWithApple.getKeychainCredential();
+
       return AppleCredentialModel(
           email: result.email, userIdentifier: result.userIdentifier!);
     } catch (error) {
-      print(error.toString());
       rethrow;
     }
-  }
-
-  Future<void> _signInWithCredential() async {
-    try {
-      final credentials = await getAppleIDCredential();
-      // final response = await http.post(serverLink, body: {
-      //   'oper':'init',
-      //   'udid': '',
-      //   'rnd': const UuidV4().generate(),
-      //   'apple_id': credentials.email,
-      //   'apple_id_token': credentials.userIdentifier,
-      // });
-    } catch (e) {}
   }
 }
