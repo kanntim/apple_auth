@@ -1,11 +1,13 @@
 import 'package:apple_auth/app.dart';
+import 'package:apple_auth/core/srvices/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:key_manager/key_manager.dart';
 
 void main() async {
-  RsaManager().init();
+  WidgetsFlutterBinding.ensureInitialized();
   RSAGenerator().init();
   CryptoUtilsManager().init();
+  await InjectionContainer.init();
   runApp(const App());
 }
 

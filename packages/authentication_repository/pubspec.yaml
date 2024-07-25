@@ -5,3 +5,8 @@ publish_to: none
 environment:
   sdk: '>=3.4.4 <4.0.0'
 
+dependencies:
+  http_util:
+    path: ../http_util
+  equatable: ^2.0.5
+

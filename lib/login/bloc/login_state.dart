@@ -9,6 +9,7 @@ final class LoginState extends Equatable {
     this.login = '',
     this.isHasAppleId = false,
     this.serverAnswer,
+    this.realization = RealizationType.dart,
   });
 
   final SubmissionStatus status;
@@ -16,21 +17,26 @@ final class LoginState extends Equatable {
   final String login;
   final bool isHasAppleId;
   final ServerAnswerModel? serverAnswer;
+  final RealizationType realization;
 
-  LoginState copyWith(
-      {SubmissionStatus? status,
-      String? udid,
-      String? login,
-      bool? isHasAppleId,
-      ServerAnswerModel? serverAnswer}) {
+  LoginState copyWith({
+    SubmissionStatus? status,
+    String? udid,
+    String? login,
+    bool? isHasAppleId,
+    ServerAnswerModel? serverAnswer,
+    RealizationType? realization,
+  }) {
     return LoginState(
-        status: status ?? this.status,
-        udid: udid ?? this.udid,
-        login: login ?? this.login,
-        isHasAppleId: isHasAppleId ?? this.isHasAppleId,
-        serverAnswer: serverAnswer ?? this.serverAnswer);
+      status: status ?? this.status,
+      udid: udid ?? this.udid,
+      login: login ?? this.login,
+      isHasAppleId: isHasAppleId ?? this.isHasAppleId,
+      serverAnswer: serverAnswer ?? this.serverAnswer,
+      realization: realization ?? this.realization,
+    );
   }
 
   @override
-  get props => [status, udid, login, serverAnswer];
+  get props => [status, udid, login, serverAnswer, realization];
 }
