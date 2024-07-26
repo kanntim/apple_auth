@@ -13,11 +13,6 @@
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		3E5705011096758A2180E8CC /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4D811AEFE8A97C10C41FBE5 /* Pods_RunnerTests.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
-		7C4056842C52C80D007F73BD /* DerCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4056822C52C80D007F73BD /* DerCodec.swift */; };
-		7C4056852C52C80D007F73BD /* RsaConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4056832C52C80D007F73BD /* RsaConverter.swift */; };
-		7C56753D2C4BD4B7009358A4 /* KeyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C56753C2C4BD4B7009358A4 /* KeyController.swift */; };
-		7C56753F2C4BD69F009358A4 /* Signer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C56753E2C4BD69F009358A4 /* Signer.swift */; };
-		7CFF4AD02C4BF13C00A3B1EA /* AuthRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CFF4ACF2C4BF13C00A3B1EA /* AuthRequest.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
@@ -57,12 +52,7 @@
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
-		7C4056822C52C80D007F73BD /* DerCodec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DerCodec.swift; path = ../../../DerCodec.swift; sourceTree = "<group>"; };
-		7C4056832C52C80D007F73BD /* RsaConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RsaConverter.swift; path = ../../../RsaConverter.swift; sourceTree = "<group>"; };
 		7C56753B2C4B1BBB009358A4 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
-		7C56753C2C4BD4B7009358A4 /* KeyController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyController.swift; sourceTree = "<group>"; };
-		7C56753E2C4BD69F009358A4 /* Signer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signer.swift; sourceTree = "<group>"; };
-		7CFF4ACF2C4BF13C00A3B1EA /* AuthRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRequest.swift; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -172,11 +162,6 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
-				7C56753C2C4BD4B7009358A4 /* KeyController.swift */,
-				7C56753E2C4BD69F009358A4 /* Signer.swift */,
-				7CFF4ACF2C4BF13C00A3B1EA /* AuthRequest.swift */,
-				7C4056822C52C80D007F73BD /* DerCodec.swift */,
-				7C4056832C52C80D007F73BD /* RsaConverter.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -394,12 +379,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
-				7C56753D2C4BD4B7009358A4 /* KeyController.swift in Sources */,
-				7C4056842C52C80D007F73BD /* DerCodec.swift in Sources */,
-				7C4056852C52C80D007F73BD /* RsaConverter.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
-				7C56753F2C4BD69F009358A4 /* Signer.swift in Sources */,
-				7CFF4AD02C4BF13C00A3B1EA /* AuthRequest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
