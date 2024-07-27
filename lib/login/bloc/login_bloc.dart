@@ -55,30 +55,32 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final String udid = await FlutterUdid.udid;
       final String? email = appleCredential.email;
 
-      late RequestModel request;
-      if (state.realization == RealizationType.native) {
-        final data =
-            await RsaManager.makeRegisterRequest(login: login, udid: udid, email: email);
-        request =
-            RegisterRequest.fromMap((data as Map).cast<String, dynamic>());
-      } else {
-        final String udid = await FlutterUdid.udid;
-        final String rnd = const UuidV4().generate().toLowerCase();
-        final String concat = udid + rnd;
-        final String signature = CryptoUtilsManager().signData(concat);
-        final String publicKey = CryptoUtilsManager().pemRsaPublicKey;
-        request = RegisterRequest(
-            udid: udid, rnd: rnd, signature: signature, pmk: publicKey);
-      }
+
 
       final user =
           await _userRepository.getUser(appleCredential.userIdentifier);
+      late RequestModel request;
 
       if (user == null) {
+        if (state.realization == RealizationType.native) {
+          final data =
+          await RsaManager.makeRegisterRequest(login: login, udid: udid, email: email);
+          request =
+              RegisterRequest.fromMap((data as Map).cast<String, dynamic>());
+        } else {
+          final String udid = await FlutterUdid.udid;
+          final String rnd = const UuidV4().generate().toLowerCase();
+          final String concat = udid + rnd;
+          final String signature = CryptoUtilsManager().signData(concat);
+          final String publicKey = CryptoUtilsManager().pemRsaPublicKey;
+          request = RegisterRequest(
+              udid: udid, rnd: rnd, signature: signature, pmk: publicKey);
+        }
         final registerResult =
             await _authenticationRepository.registerOnServer(request as RegisterRequest);
 
         if (registerResult.error != 1) {
+
           emit(state.copyWith(
               status: SubmissionStatus.failure,
               serverAnswer: registerResult,
@@ -90,8 +92,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       if (state.realization == RealizationType.native) {
         final data =
-        await RsaManager.makeLoginRequest(login: login, udid: udid, email: email);
-        request =
+        await RsaManager.makeLoginRequest(login: login, udid: udid, email: email);final request =
             LoginRequest.fromMap((data as Map).cast<String, dynamic>());
       } else {
         final String udid = await FlutterUdid.udid;
@@ -110,7 +111,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             status: SubmissionStatus.failure, serverAnswer: loginResult));
         return;
       }
-
+      //TODO: save private key or random seed for login in future
       _userRepository.setUser(userId: appleCredential.userIdentifier, login: state.login);
 
       emit(state.copyWith(
