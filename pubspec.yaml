@@ -19,11 +19,12 @@ dependencies:
     path: packages/user_repository
   http_util:
     path: packages/http_util
-
   local_data_source:
     path: packages/local_data_source
   rsa_manager:
     path: packages/rsa_manager
+  secure_storage:
+    path: packages/secure_storage
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.6
@@ -32,6 +33,7 @@ dependencies:
   uuid: ^4.4.2
   dio: ^5.5.0+1
   get_it: ^7.7.0
+
 
   flutter_udid: ^3.0.0
 

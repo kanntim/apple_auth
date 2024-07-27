@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_udid/flutter_udid.dart';
 import 'package:rsa_manager/rsa_manager.dart';
+import 'package:secure_storage/secure_storage.dart';
 import 'package:user_repository/user_repository.dart';
 import 'package:uuid/v4.dart';
 
@@ -44,6 +45,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final appleCredential =
           await _appleIdAuthRepository.getAppleIDCredential();
 
+
       if (appleCredential.email == null &&
           appleCredential.userIdentifier.isEmpty) {
         emit(state.copyWith(
@@ -52,67 +54,50 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       }
 
       final login = appleCredential.userIdentifier;
-      final String udid = await FlutterUdid.udid;
       final String? email = appleCredential.email;
-
-
-
       final user =
           await _userRepository.getUser(appleCredential.userIdentifier);
       late RequestModel request;
 
       if (user == null) {
-        if (state.realization == RealizationType.native) {
-          final data =
-          await RsaManager.makeRegisterRequest(login: login, udid: udid, email: email);
-          request =
-              RegisterRequest.fromMap((data as Map).cast<String, dynamic>());
-        } else {
-          final String udid = await FlutterUdid.udid;
-          final String rnd = const UuidV4().generate().toLowerCase();
-          final String concat = udid + rnd;
-          final String signature = CryptoUtilsManager().signData(concat);
-          final String publicKey = CryptoUtilsManager().pemRsaPublicKey;
-          request = RegisterRequest(
-              udid: udid, rnd: rnd, signature: signature, pmk: publicKey);
-        }
-        final registerResult =
-            await _authenticationRepository.registerOnServer(request as RegisterRequest);
+        final data = await RsaManager.makeRegisterRequest(
+          login: login,
+          email: email,
+          isNative: state.realization == RealizationType.native,
+        );
+        request =
+            RegisterRequest.fromMap((data as Map).cast<String, dynamic>());
+        final registerResult = await _authenticationRepository
+            .registerOnServer(request as RegisterRequest);
 
         if (registerResult.error != 1) {
-
           emit(state.copyWith(
               status: SubmissionStatus.failure,
               serverAnswer: registerResult,
               realization: state.realization));
           return;
         }
+
+        await SecureStorageRepo()
+            .setUserKeyById(appleCredential.userIdentifier, '');
       }
 
+      final privateKey = await SecureStorageRepo().getUserKeyById(login);
+      final data =
+          await RsaManager.makeLoginRequest(privateKey:privateKey,login: login, email: email);
+      request = LoginRequest.fromMap((data as Map).cast<String, dynamic>());
 
-      if (state.realization == RealizationType.native) {
-        final data =
-        await RsaManager.makeLoginRequest(login: login, udid: udid, email: email);final request =
-            LoginRequest.fromMap((data as Map).cast<String, dynamic>());
-      } else {
-        final String udid = await FlutterUdid.udid;
-        final String rnd = const UuidV4().generate().toLowerCase();
-        final String concat = udid + rnd;
-        final String signature = CryptoUtilsManager().signData(concat);
-        final String publicKey = CryptoUtilsManager().pemRsaPublicKey;
-        request = RegisterRequest(
-            udid: udid, rnd: rnd, signature: signature, pmk: publicKey);
-      }
-
-      final loginResult = await _authenticationRepository.loginInServer(request as LoginRequest);
+      final loginResult = await _authenticationRepository
+          .loginInServer(request as LoginRequest);
 
       if (loginResult.error != 1) {
         emit(state.copyWith(
             status: SubmissionStatus.failure, serverAnswer: loginResult));
         return;
       }
-      //TODO: save private key or random seed for login in future
-      _userRepository.setUser(userId: appleCredential.userIdentifier, login: state.login);
+
+      _userRepository.setUser(
+          userId: appleCredential.userIdentifier, login: state.login);
 
       emit(state.copyWith(
           status: SubmissionStatus.success,

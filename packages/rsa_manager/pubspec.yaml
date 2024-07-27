@@ -13,8 +13,9 @@ dependencies:
   plugin_platform_interface: ^2.0.2
   encrypt: ^5.0.3
   pointycastle: ^3.9.1
-  hex: ^0.2.0
   basic_utils: ^5.7.0
+  uuid: ^4.4.2
+  flutter_udid: ^3.0.0
 
 dev_dependencies:
   flutter_test:

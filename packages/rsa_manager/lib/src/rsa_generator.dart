@@ -27,6 +27,7 @@ class RSAGenerator {
     final keyPair = generateRSAKeyPair();
     privateKey = (keyPair.privateKey as RSAPrivateKey);
     publicKey = (keyPair.publicKey as RSAPublicKey);
+
   }
 
   AsymmetricKeyPair<PublicKey, PrivateKey> generateRSAKeyPair() {

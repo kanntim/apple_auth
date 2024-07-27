@@ -4,8 +4,8 @@ import 'dart:typed_data';
 import 'package:basic_utils/basic_utils.dart';
 
 class CryptoUtilsManager {
-  late final RSAPublicKey publicKey;
-  late final RSAPrivateKey privateKey;
+  late RSAPublicKey publicKey;
+  late RSAPrivateKey privateKey;
 
   static final CryptoUtilsManager _instance = CryptoUtilsManager._internal();
 
@@ -20,6 +20,13 @@ class CryptoUtilsManager {
     privateKey = (keyPair.privateKey as RSAPrivateKey);
     publicKey = (keyPair.publicKey as RSAPublicKey);
   }
+
+  setPrivateFromPem(String privString) async {
+    privateKey = CryptoUtils.rsaPrivateKeyFromPem(privString);
+    publicKey = RSAPublicKey(privateKey.modulus!, privateKey.publicExponent!);
+  }
+
+  String get pemRsaPrivateKey => CryptoUtils.encodeRSAPrivateKeyToPem(privateKey);
 
   // to DER
   Uint8List get derRsaPublicKey => Uint8List.fromList([
